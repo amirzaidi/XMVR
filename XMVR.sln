@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicApp", "BasicApp\BasicApp.csproj", "{BFF46D41-2241-4F5E-B402-A73BD3855826}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGL", "GLUtil\LibGL.csproj", "{64B9734D-95F9-4142-A7C8-2C56F3D52E76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibUtil", "LibUtil\LibUtil.csproj", "{C56B0A00-48F9-4B76-8D26-7603141230CE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BFF46D41-2241-4F5E-B402-A73BD3855826}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFF46D41-2241-4F5E-B402-A73BD3855826}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFF46D41-2241-4F5E-B402-A73BD3855826}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFF46D41-2241-4F5E-B402-A73BD3855826}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64B9734D-95F9-4142-A7C8-2C56F3D52E76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64B9734D-95F9-4142-A7C8-2C56F3D52E76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64B9734D-95F9-4142-A7C8-2C56F3D52E76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64B9734D-95F9-4142-A7C8-2C56F3D52E76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C56B0A00-48F9-4B76-8D26-7603141230CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C56B0A00-48F9-4B76-8D26-7603141230CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C56B0A00-48F9-4B76-8D26-7603141230CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C56B0A00-48F9-4B76-8D26-7603141230CE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DDE7AE1D-0B42-4B26-A64C-4D20BB056634}
+	EndGlobalSection
+EndGlobal

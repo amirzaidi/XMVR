@@ -11,6 +11,7 @@ Log.Write("Hello, World!");
 using (var renderer = new Renderer())
 using (var window = new Window(renderer))
 {
+    window.SetVSync(true);
     window.Run();
 }
 

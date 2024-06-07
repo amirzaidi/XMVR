@@ -2,13 +2,13 @@
 
 namespace LibGL
 {
-    public interface IRenderer
+    public interface IRendererCallbacks
     {
         bool Init(Window window);
 
-        bool Resize(int w, int h);
-
         bool Update(double dt, KeyboardState ks);
+
+        bool Resize(int w, int h);
 
         bool Render();
     }

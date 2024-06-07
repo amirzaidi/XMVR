@@ -1,6 +1,6 @@
 ﻿using LibUtil;
 using OpenTK.Graphics.OpenGL4;
-using static LibGL.Bindable;
+using static LibUtil.Bindable;
 
 namespace LibGL.Shaders
 {

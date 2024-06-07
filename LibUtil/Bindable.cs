@@ -1,4 +1,4 @@
-﻿namespace LibGL
+﻿namespace LibUtil
 {
     public abstract class Bindable : IDisposable
     {

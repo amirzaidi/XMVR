@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using LibUtil;
+using OpenTK.Graphics.OpenGL4;
 
 namespace LibGL.Buffers
 {

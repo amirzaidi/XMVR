@@ -7,7 +7,7 @@ using Window = LibGL.Window;
 
 namespace BasicApp
 {
-    internal class Renderer : IRenderer, IDisposable
+    internal class Renderer : IRendererCallbacks, IDisposable
     {
         private const int BASE_EYE_WIDTH = 1024;
         private const int BASE_EYE_HEIGHT = 1024;
@@ -66,15 +66,6 @@ namespace BasicApp
             return true;
         }
 
-        public bool Resize(int w, int h)
-        {
-            // Instead of resizing nicely, we force an aspect ratio.
-            mWindow!.ForceResizeToAspect(BASE_EYE_WIDTH, BASE_EYE_HEIGHT);
-
-            // For now ignore a request to resize in the renderer.
-            return true;
-        }
-
         public bool Update(double dt, KeyboardState ks)
         {
             // Set the view matrix for the current frame.
@@ -82,6 +73,15 @@ namespace BasicApp
             V *= Matrix4.CreateTranslation(P); // Translate camera in absolute space.
             V *= RotationMatrix(R); // Rotate camera in absolute space.
 
+            return true;
+        }
+
+        public bool Resize(int w, int h)
+        {
+            // Instead of resizing nicely, we force an aspect ratio.
+            mWindow!.ForceResizeToAspect(BASE_EYE_WIDTH, BASE_EYE_HEIGHT);
+
+            // For now ignore a request to resize in the renderer.
             return true;
         }
 

@@ -1,14 +1,12 @@
-﻿using LibUtil;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Diagnostics;
 
 namespace LibGL
 {
-    public class Window(IRenderer renderer) : GameWindow(sGameSettings, sNativeSettings)
+    public class Window(IRendererCallbacks cb) : GameWindow(sGameSettings, sNativeSettings)
     {
         private static readonly GameWindowSettings sGameSettings = new()
         {
@@ -19,14 +17,13 @@ namespace LibGL
             ClientSize = new Vector2i(1024, 768),
         };
 
-        private readonly IRenderer mRenderer = renderer;
+        private readonly IRendererCallbacks mCb = cb;
 
         private const int RESIZE_WIDTH = 0x1;
         private const int RESIZE_HEIGHT = 0x2;
 
-        // Multiples of two.
-        private int RenderWidth => (Size.X / 2) * 2;
-        private int RenderHeight => (Size.Y / 2) * 2;
+        private int RenderWidth => Size.X;
+        private int RenderHeight => Size.Y;
 
         private Vector2i mPrevSize, mIntendSize;
         private int mLastResize;
@@ -37,7 +34,7 @@ namespace LibGL
             base.OnLoad();
             Debug.Enable();
             GL.Disable(EnableCap.Dither);
-            mRenderer.Init(this);
+            mCb.Init(this);
         }
 
         public void SetVSync(bool vsync)
@@ -78,7 +75,7 @@ namespace LibGL
 
             if (Size != mIntendSize)
             {
-                // Force Resize.
+                // Force Resize. This does not call OnResize.
                 Size = mIntendSize;
             }
         }
@@ -112,16 +109,18 @@ namespace LibGL
             mShouldRecreateBuffers = true;
         }
 
+        // Physics and everything that might be frame-independent.
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
 
-            if (!mRenderer.Update(e.Time, KeyboardState))
+            if (!mCb.Update(e.Time, KeyboardState))
             {
                 Close();
             }
         }
 
+        // Everything rendering related, including rescaling resources.
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
@@ -129,13 +128,13 @@ namespace LibGL
             if (mShouldRecreateBuffers)
             {
                 mShouldRecreateBuffers = false;
-                if (!mRenderer.Resize(RenderWidth / 2, RenderHeight / 2))
+                if (!mCb.Resize(RenderWidth, RenderHeight))
                 {
                     Close();
                 }
             }
 
-            if (!mRenderer.Render())
+            if (!mCb.Render())
             {
                 Close();
             }

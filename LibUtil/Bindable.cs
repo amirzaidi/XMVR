@@ -1,15 +1,18 @@
 ﻿namespace LibUtil
 {
-    public abstract class Bindable : IDisposable
+    public abstract class Bindable
     {
-        public abstract void Dispose();
+        public Unbinder Bind() =>
+            new(BindInternal());
 
-        public class AutoUnbind(Action OnUnbind) : IDisposable
-        {
-            private readonly Action mOnUnbind = OnUnbind;
+        protected abstract Action BindInternal();
+    }
 
-            public void Dispose() =>
-                mOnUnbind();
-        }
+    public abstract class Bindable<T>
+    {
+        public Unbinder Bind(T arg) =>
+            new(BindInternal(arg));
+
+        protected abstract Action BindInternal(T arg);
     }
 }

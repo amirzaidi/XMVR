@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace LibGL.Buffers
 {
-    public class RenderBuffer : Bindable
+    public class RenderBuffer : Bindable, IDisposable
     {
         private static readonly RenderbufferTarget TARGET = RenderbufferTarget.Renderbuffer;
 
@@ -17,13 +17,13 @@ namespace LibGL.Buffers
             }
         }
 
-        public AutoUnbind Bind()
+        protected override Action BindInternal()
         {
             GL.BindRenderbuffer(TARGET, Id);
-            return new AutoUnbind(() => GL.BindRenderbuffer(TARGET, 0));
+            return () => GL.BindRenderbuffer(TARGET, 0);
         }
 
-        public override void Dispose() =>
+        public void Dispose() =>
             GL.DeleteRenderbuffer(Id);
     }
 }

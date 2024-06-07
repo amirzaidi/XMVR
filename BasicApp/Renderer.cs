@@ -1,4 +1,5 @@
 ﻿using LibGL;
+using LibGL.Buffers;
 using LibGL.Shaders;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -24,9 +25,11 @@ namespace BasicApp
 
         private Vector3 P, R;
 
+        // To-Do: Move these somewhere non-nullable.
         private Window? mWindow;
         private ShaderProgram? mProgram;
-        private int VBO, VAO;
+        private VertexBufferObject? mVBO;
+        private VertexArrayObject? mVAO;
 
         public bool Init(Window window)
         {
@@ -49,19 +52,19 @@ namespace BasicApp
                 );
             }
 
-            // To-Do: Clean this up.
-            VBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, Mesh.VERTICES.Length * sizeof(float), Mesh.VERTICES, BufferUsageHint.StaticDraw);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0); // Unbind.
+            mVBO = new VertexBufferObject();
+            using (mVBO.Bind())
+            {
+                GL.BufferData(BufferTarget.ArrayBuffer, Mesh.VERTICES.Length * sizeof(float), Mesh.VERTICES, BufferUsageHint.StaticDraw);
+            }
 
-            // To-Do: Clean this up.
-            VAO = GL.GenVertexArray();
-            GL.BindVertexArray(VAO);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
-            GL.BindVertexArray(0); // Unbind.
+            mVAO = new VertexArrayObject();
+            using (mVAO.Bind())
+            {
+                GL.BindBuffer(BufferTarget.ArrayBuffer, mVBO.Id);
+                GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+                GL.EnableVertexAttribArray(0);
+            }
 
             return true;
         }
@@ -107,15 +110,10 @@ namespace BasicApp
             GL.CullFace(CullFaceMode.Back);
 
             using (mProgram!.Bind())
+            using (mVAO!.Bind())
             {
-                // Bind VAO.
-                GL.BindVertexArray(VAO);
-
                 // Draw triangle.
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
-
-                // Unbind VAO.
-                GL.BindVertexArray(0);
             }
 
             // Clean up rendering parameters.
@@ -129,6 +127,8 @@ namespace BasicApp
 
         public void Dispose()
         {
+            mVBO?.Dispose();
+            mVAO?.Dispose();
         }
     }
 }

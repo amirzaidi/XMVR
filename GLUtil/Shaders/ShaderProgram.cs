@@ -1,10 +1,9 @@
 ﻿using LibUtil;
 using OpenTK.Graphics.OpenGL4;
-using static LibUtil.Bindable;
 
 namespace LibGL.Shaders
 {
-    public class ShaderProgram : IDisposable
+    public class ShaderProgram : Bindable, IDisposable
     {
         public readonly int Id;
 
@@ -32,10 +31,10 @@ namespace LibGL.Shaders
             GL.DetachShader(Id, frag.Id);
         }
 
-        public AutoUnbind Bind()
+        protected override Action BindInternal()
         {
             GL.UseProgram(Id);
-            return new AutoUnbind(() => GL.UseProgram(0));
+            return () => GL.UseProgram(0);
         }
 
         public void Dispose() =>

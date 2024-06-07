@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace LibGL.Buffers
 {
-    public class FrameBuffer : Bindable
+    public class FrameBuffer : Bindable<FramebufferTarget>
     {
         internal readonly int Id;
 
@@ -38,13 +38,13 @@ namespace LibGL.Buffers
             }
         }
 
-        protected AutoUnbind Bind(FramebufferTarget target = FramebufferTarget.Framebuffer)
+        protected override Action BindInternal(FramebufferTarget target = FramebufferTarget.Framebuffer)
         {
             GL.BindFramebuffer(target, Id);
-            return new AutoUnbind(() => GL.BindFramebuffer(target, 0));
+            return () => GL.BindFramebuffer(target, 0);
         }
 
-        public override void Dispose() =>
+        public void Dispose() =>
             GL.DeleteFramebuffer(Id);
     }
 }

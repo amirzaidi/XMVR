@@ -4,7 +4,7 @@ using static LibGL.Buffers.TextureFormats;
 
 namespace LibGL.Buffers
 {
-    public class Texture : Bindable
+    public class Texture : Bindable<TextureUnit>
     {
         private const TextureUnit TEX_DEFAULT = TextureUnit.Texture0;
         private const int TEMP_TEX_USE_ID = 16;
@@ -36,7 +36,7 @@ namespace LibGL.Buffers
 
             var (pif, pf, pt) = FormatToPixel(format, ch);
 
-            using (Bind())
+            using (Bind(TEX_DEFAULT + TEMP_TEX_USE_ID))
             {
                 if (Count > 1)
                 {
@@ -77,16 +77,16 @@ namespace LibGL.Buffers
             }
         }
 
-        public AutoUnbind Bind(int tex = TEMP_TEX_USE_ID) =>
-            Bind(TEX_DEFAULT + tex);
+        //public Unbinder Bind(int tex = TEMP_TEX_USE_ID) =>
+        //    Bind(TEX_DEFAULT + tex);
 
-        public AutoUnbind Bind(TextureUnit unit)
+        protected override Action BindInternal(TextureUnit unit)
         {
             // Bind this texture to texture unit.
             GL.ActiveTexture(unit);
             GL.BindTexture(Target, Id);
 
-            return new AutoUnbind(() =>
+            return () =>
             {
                 // Unbind this texture from texture unit.
                 GL.ActiveTexture(unit);
@@ -94,10 +94,10 @@ namespace LibGL.Buffers
 
                 // Reset to default texture unit.
                 GL.ActiveTexture(TEX_DEFAULT);
-            });
+            };
         }
 
-        public override void Dispose() =>
+        public void Dispose() =>
             GL.DeleteTexture(Id);
     }
 }

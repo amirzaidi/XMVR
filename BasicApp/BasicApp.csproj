@@ -7,6 +7,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;CA1816</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;CA1816</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="OpenTK" Version="4.8.2" />
     <PackageReference Include="OpenTK.redist.glfw" Version="3.4.0.44" />

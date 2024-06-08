@@ -1,4 +1,4 @@
-﻿using VRDUtil;
+﻿using LibUtil;
 
 namespace LibMesh
 {
@@ -16,7 +16,7 @@ namespace LibMesh
 
         private static readonly LineParser<MTLParser> sLineParser = new();
 
-        internal readonly Dictionary<string, Material> Mats = new();
+        internal readonly Dictionary<string, Material> Mats = [];
 
         private string? mName;
         private Material mMat = new();

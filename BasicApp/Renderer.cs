@@ -20,9 +20,9 @@ namespace BasicApp
         private const float FRUSTUM_NEAR = 0.01f;
         private const float FRUSTUM_FAR = 100f;
 
-        private Vector3 ViewPos, ViewRot;
+        private readonly Camera mCamera = new();
         private Matrix4 View =>
-            Matrix4.CreateTranslation(-ViewPos) * MatUtil.CameraRotation(-ViewRot);
+            Matrix4.CreateTranslation(-mCamera.ViewPos) * MatUtil.CameraRotation(-mCamera.ViewRot);
 
         // These are read from the VR headset.
         private readonly Matrix4[] ViewEye = new Matrix4[2];
@@ -80,39 +80,7 @@ namespace BasicApp
 
         public bool Update(double dt, KeyboardState ks)
         {
-            // First update position.
-            const double MS = 0.25d;
-            var move = new Vector2();
-            if (ks.IsKeyDown(Keys.A)) move.X -= (float)(MS * dt);
-            if (ks.IsKeyDown(Keys.D)) move.X += (float)(MS * dt);
-            if (ks.IsKeyDown(Keys.W)) move.Y -= (float)(MS * dt);
-            if (ks.IsKeyDown(Keys.S)) move.Y += (float)(MS * dt);
-            ViewPos.Xz += MatUtil.CameraRotation(ViewRot.Y) * move;
-
-            // Then update rotation.
-            const double RSY = 0.25d;
-            const double RSX = 0.25d;
-            if (ks.IsKeyDown(Keys.Left))
-            {
-                ViewRot.Y += (float)(RSY * 360d * dt);
-                if (ViewRot.Y < -180f) ViewRot.Y -= 360f;
-            }
-            if (ks.IsKeyDown(Keys.Right))
-            {
-                ViewRot.Y -= (float)(RSY * 360d * dt);
-                if (ViewRot.Y > 180f) ViewRot.Y += 360f;
-            }
-            if (ks.IsKeyDown(Keys.Up))
-            {
-                ViewRot.X += (float)(RSX * 360d * dt);
-                if (ViewRot.X < -90f) ViewRot.X -= -90f;
-            }
-            if (ks.IsKeyDown(Keys.Down))
-            {
-                ViewRot.X -= (float)(RSX * 360d * dt);
-                if (ViewRot.X > 90f) ViewRot.X = 90f;
-            }
-
+            mCamera.UpdateMovement(dt, ks);
             return true;
         }
 
@@ -120,8 +88,6 @@ namespace BasicApp
         {
             // Instead of resizing nicely, we force an aspect ratio.
             mWindow!.ForceResizeToAspect(BASE_EYE_WIDTH, BASE_EYE_HEIGHT);
-
-            // For now ignore a request to resize in the renderer.
             return true;
         }
 

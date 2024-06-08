@@ -7,6 +7,8 @@ namespace LibGL.Buffers
     {
         internal readonly int Id;
 
+        protected override FramebufferTarget BindDefault => FramebufferTarget.Framebuffer;
+
         public FrameBuffer()
         {
             var ids = new int[1];
@@ -38,7 +40,7 @@ namespace LibGL.Buffers
             }
         }
 
-        protected override Action BindInternal(FramebufferTarget target = FramebufferTarget.Framebuffer)
+        protected override Action BindInternal(FramebufferTarget target)
         {
             GL.BindFramebuffer(target, Id);
             return () => GL.BindFramebuffer(target, 0);

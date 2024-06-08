@@ -39,6 +39,7 @@ namespace BasicApp
         {
             mWindow = window;
 
+            // Create a rasterization pipeline using a vertex and fragment shader.
             using (var vert = new Shader(ShaderType.VertexShader, "./Shaders/vert.glsl"))
             using (var frag = new Shader(ShaderType.FragmentShader, "./Shaders/frag.glsl"))
             {
@@ -58,10 +59,7 @@ namespace BasicApp
 
             // The VBO stores the triangle vertices.
             var vbo = new VertexBufferObject();
-            using (vbo.Bind())
-            {
-                GL.BufferData(BufferTarget.ArrayBuffer, Mesh.VERTICES.Length * sizeof(float), Mesh.VERTICES, BufferUsageHint.StaticDraw);
-            }
+            vbo.BindBufferData(Mesh.VERTICES);
 
             // The VAO stores how to render those vertices.
             var vao = new VertexArrayObject();
@@ -124,10 +122,13 @@ namespace BasicApp
                 {
                     // Set model matrix. Currently hardcoded at (0, 0, -2) translation.
                     var model = Matrix4.CreateTranslation(new(0f, 0f, -2f));
+
+                    // Needed for normal vectors.
+                    // Source: https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
                     var modelNormal = model;
                     modelNormal.Row3.Xyz = Vector3.Zero;
                     modelNormal = modelNormal.Inverted();
-                    modelNormal.Transpose(); // https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
+                    modelNormal.Transpose();
 
                     GL.UniformMatrix4(mProgram.GetUniformLocation("Model"), false, ref model);
                     GL.UniformMatrix4(mProgram.GetUniformLocation("ModelNormal"), false, ref modelNormal);
@@ -152,6 +153,7 @@ namespace BasicApp
 
         public void Dispose()
         {
+            mProgram?.Dispose();
             mModels.ForEach(_ =>
             {
                 _.vbo.Dispose();

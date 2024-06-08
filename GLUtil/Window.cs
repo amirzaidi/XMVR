@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using LibUtil;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -9,7 +10,7 @@ namespace LibGL
     /// <summary>
     /// Class that handles resizing and rendering the window without creating stuttering.
     /// </summary>
-    public class Window(IRendererCallbacks cb) : GameWindow(sGameSettings, sNativeSettings)
+    public class Window(params IRendererCallbacks[] cb) : GameWindow(sGameSettings, sNativeSettings)
     {
         private static readonly GameWindowSettings sGameSettings = new()
         {
@@ -21,7 +22,7 @@ namespace LibGL
             ClientSize = new Vector2i(1024, 768),
         };
 
-        private readonly IRendererCallbacks mCb = cb;
+        private readonly IRendererCallbacks[] mCb = cb;
 
         private const int RESIZE_WIDTH = 0x1;
         private const int RESIZE_HEIGHT = 0x2;
@@ -38,7 +39,7 @@ namespace LibGL
             base.OnLoad();
             Debug.Enable();
             GL.Disable(EnableCap.Dither);
-            mCb.Init(this);
+            mCb.ForEach(_ => _.Init(this));
         }
 
         public void SetVSync(bool vsync)
@@ -118,7 +119,7 @@ namespace LibGL
         {
             base.OnUpdateFrame(e);
 
-            if (!mCb.Update(e.Time, KeyboardState))
+            if (!mCb.All(_ => _.Update(e.Time, KeyboardState)))
             {
                 Close();
             }
@@ -132,13 +133,13 @@ namespace LibGL
             if (mShouldRecreateBuffers)
             {
                 mShouldRecreateBuffers = false;
-                if (!mCb.Resize(RenderWidth, RenderHeight))
+                if (!mCb.All(_ => _.Resize(RenderWidth, RenderHeight)))
                 {
                     Close();
                 }
             }
 
-            if (!mCb.Render())
+            if (!mCb.All(_ => _.Render()))
             {
                 Close();
             }

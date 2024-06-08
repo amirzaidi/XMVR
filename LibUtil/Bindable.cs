@@ -9,9 +9,12 @@
     }
 
     public abstract class Bindable<T>
+        where T : struct
     {
-        public Unbinder Bind(T arg) =>
-            new(BindInternal(arg));
+        protected abstract T BindDefault { get; }
+
+        public Unbinder Bind(T? arg = null) =>
+            new(BindInternal(arg ?? BindDefault));
 
         protected abstract Action BindInternal(T arg);
     }

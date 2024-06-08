@@ -14,8 +14,11 @@ namespace LibGL.Buffers
         public readonly Format Format;
         public readonly TextureTarget Target;
 
-        public IntPtr NativePtr =>
-            new(Id);
+        // Needed for VR.
+        //public IntPtr NativePtr =>
+        //    new(Id);
+
+        protected override TextureUnit BindDefault => TEX_DEFAULT + TEMP_TEX_USE_ID;
 
         public Texture(int w, int h, Format format = Format.Half, int ch = 1, int n = 1)
         {

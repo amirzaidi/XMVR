@@ -6,6 +6,9 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace LibGL
 {
+    /// <summary>
+    /// Class that handles resizing and rendering the window without creating stuttering.
+    /// </summary>
     public class Window(IRendererCallbacks cb) : GameWindow(sGameSettings, sNativeSettings)
     {
         private static readonly GameWindowSettings sGameSettings = new()
@@ -14,6 +17,7 @@ namespace LibGL
 
         private static readonly NativeWindowSettings sNativeSettings = new()
         {
+            // Placeholder size for window open.
             ClientSize = new Vector2i(1024, 768),
         };
 

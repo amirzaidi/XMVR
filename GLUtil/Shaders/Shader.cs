@@ -6,11 +6,13 @@ namespace LibGL.Shaders
     public class Shader : IDisposable
     {
         public readonly int Id;
+        public readonly string Name;
 
         public Shader(ShaderType type, string path)
         {
             // Create shader object.
             Id = GL.CreateShader(type);
+            Name = path.Split(['/', '\\']).Last();
 
             // Load source code into shader object.
             GL.ShaderSource(Id, File.ReadAllText(path));

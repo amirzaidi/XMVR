@@ -1,4 +1,5 @@
 ﻿using LibUtil;
+using OpenTK.Compute.OpenCL;
 using OpenTK.Graphics.OpenGL4;
 
 namespace LibGL.Shaders
@@ -6,15 +7,18 @@ namespace LibGL.Shaders
     public class ShaderProgram : Bindable, IDisposable
     {
         public readonly int Id;
+        public readonly string Name;
 
-        public ShaderProgram(Shader vert, Shader frag)
+        private readonly Dictionary<string, int> mLocations = [];
+
+        public ShaderProgram(params Shader[] shaders)
         {
             // Create clean program.
             Id = GL.CreateProgram();
+            Name = string.Join(" -> ", shaders.Select(_ => _.Name).ToArray());
 
             // Compile into full rasterization pipeline.
-            GL.AttachShader(Id, vert.Id);
-            GL.AttachShader(Id, frag.Id);
+            shaders.ForEach(_ => GL.AttachShader(Id, _.Id));
             GL.LinkProgram(Id);
 
             // Check if compilation successful.
@@ -27,9 +31,19 @@ namespace LibGL.Shaders
             }
 
             // Clean up partial shaders.
-            GL.DetachShader(Id, vert.Id);
-            GL.DetachShader(Id, frag.Id);
+            shaders.ForEach(_ => GL.DetachShader(Id, _.Id));
         }
+
+        public int GetUniformLocation(string var) =>
+            mLocations.GetOrAdd(var, () =>
+            {
+                var loc = GL.GetUniformLocation(Id, var);
+                if (loc == -1)
+                {
+                    Log.Write($"{Name} GetUniformLoc: {var} {loc}");
+                }
+                return loc;
+            });
 
         protected override Action BindInternal()
         {

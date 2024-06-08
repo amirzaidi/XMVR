@@ -1,11 +1,10 @@
 #version 430
 
-/*
 // Uniform constants.
 uniform mat4 Model;
 uniform mat4 ModelNormal;
-uniform mat4 ViewProj;
-*/
+uniform mat4 View;
+uniform mat4 Projection;
 
 // In data attributes.
 // These are defined in the vertex layout.
@@ -24,7 +23,11 @@ out vec2 FragmentTexCoords;
 // Entry point for vertex shader.
 void main()
 {
-    gl_Position = vec4(VertexPosition, 1.0);
+    vec4 v = vec4(VertexPosition, 1.0);
+    v = Model * v;
+    v = View * v;
+    v = Projection * v;
+    gl_Position = v;
 
     /*
     // Translate the position from world-space to screen-space.

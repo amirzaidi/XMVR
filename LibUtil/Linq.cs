@@ -135,5 +135,8 @@ namespace LibUtil
             Enumerable.Range(0, list.Count)
                 .Where(_ => selector(list[_]))
                 .ToArray();
+
+        public static V3 Sum<T>(this IEnumerable<T> array, Func<T, V3> f) =>
+            array.Select(_ => f(_)).Aggregate((a, b) => a + b);
     }
 }

@@ -65,6 +65,7 @@ namespace BasicApp
             var vao = new VertexArrayObject();
             using (vao.Bind())
             {
+                // This will be saved for the next time the VAO is bound.
                 GL.BindBuffer(BufferTarget.ArrayBuffer, vbo.Id);
                 GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
                 GL.EnableVertexAttribArray(0);

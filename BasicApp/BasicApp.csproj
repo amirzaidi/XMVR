@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GLUtil\LibGL.csproj" />
+    <ProjectReference Include="..\LibMesh\LibMesh.csproj" />
     <ProjectReference Include="..\LibUtil\LibUtil.csproj" />
   </ItemGroup>
   
@@ -38,6 +39,10 @@
     <None Update="Shaders\vert.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>

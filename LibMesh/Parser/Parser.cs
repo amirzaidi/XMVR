@@ -1,8 +1,9 @@
 ﻿using LibUtil;
 
-namespace LibMesh
+namespace LibMesh.Parser
 {
-    internal class LineParser<T>
+    // To-Do: Remove static instances and make it able to load/unload on demand.
+    internal class Parser<T>
     {
         private readonly Dictionary<string, Func<T, string[], Task>> mActions = [];
 
@@ -15,14 +16,7 @@ namespace LibMesh
         internal async Task ParseFile(T obj, string dir, string filename)
         {
             var file = Path.Combine(dir, filename);
-            if (File.Exists(file))
-            {
-                Log.Write($"Loading file: {file}");
-            }
-            else
-            {
-                throw new FileNotFoundException(file);
-            }
+            Assert.FileExists(file);
 
             using var fileStream = File.OpenText(file);
             string? line;

@@ -1,29 +1,21 @@
-﻿using LibUtil;
+﻿using LibMesh.Data;
+using LibUtil;
 
-namespace LibMesh
+namespace LibMesh.Parser
 {
-    public class MTLParser
+    // To-Do: Remove static instances and make it able to load/unload on demand.
+    internal class WavefrontMaterialParser
     {
-        [Serializable]
-        public struct Material
-        {
-            public (float, float, float) Ka, Kd, Ks, Ke;
-            public float Ns, Ni, D;
-            public int Illum;
-            public string TexDir;
-            public string KaTex, KdTex, KsTex, VnTex;
-        }
+        private static readonly Parser<WavefrontMaterialParser> sLineParser = new();
 
-        private static readonly LineParser<MTLParser> sLineParser = new();
-
-        internal readonly Dictionary<string, Material> Mats = [];
+        internal readonly Dictionary<string, WavefrontMaterial> Mats = [];
 
         private string? mName;
-        private Material mMat = new();
+        private WavefrontMaterial mMat;
 
         private string? mTexDir;
 
-        static MTLParser()
+        static WavefrontMaterialParser()
         {
             sLineParser.AddHandler("newmtl", (obj, str) =>
             {
@@ -47,11 +39,11 @@ namespace LibMesh
             sLineParser.AddHandler("map_vn", (obj, str) => obj.mMat.VnTex = str[1]);
         }
 
-        internal MTLParser()
+        internal WavefrontMaterialParser()
         {
         }
 
-        internal async Task<MTLParser> ParseFile(string dir, string filename)
+        internal async Task<WavefrontMaterialParser> ParseFile(string dir, string filename)
         {
             mTexDir = dir;
             FinalizeMat(); // Won't add a mat because name is empty.

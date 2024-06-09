@@ -1,13 +1,14 @@
-﻿using LibUtil;
+﻿using LibMesh.Data;
+using LibUtil;
 
-namespace LibMesh
+namespace LibMesh.Discrete
 {
-    internal class DiscreteGeometry
+    internal class Geometry
     {
-        private readonly OBJParser.OBJData mMesh;
-        private readonly DiscreteTopology mTopology;
+        private readonly WavefrontObject mMesh;
+        private readonly Topology mTopology;
 
-        internal DiscreteGeometry(OBJParser.OBJData mesh, DiscreteTopology topology)
+        internal Geometry(WavefrontObject mesh, Topology topology)
         {
             mMesh = mesh;
             mTopology = topology;
@@ -34,10 +35,10 @@ namespace LibMesh
                 var v3 = mMesh.V[v3Id];
 
                 totalarea +=
-                    ((v3 - v1).LengthSquared * Cotan(v1 - v2, v3 - v2)) + // Angle at v2 * length of e[v1, v3]
-                    ((v2 - v1).LengthSquared * Cotan(v1 - v3, v2 - v3)); // Angle at v3 * length of e[v1, v2]
+                    (v3 - v1).LengthSquared * Cotan(v1 - v2, v3 - v2) + // Angle at v2 * length of e[v1, v3]
+                    (v2 - v1).LengthSquared * Cotan(v1 - v3, v2 - v3); // Angle at v3 * length of e[v1, v2]
             }
-            return (1f / 8f) * totalarea;
+            return 1f / 8f * totalarea;
         }
 
         internal float ScalarMeanCurvature(int vId)

@@ -1,18 +1,21 @@
 ﻿using BasicApp;
 using LibGL;
+//using LibMesh;
 using LibUtil;
+using Nito.AsyncEx;
 
-/**
- * Start of this amazing app.
- */
-
-Log.Write("Hello, World!");
-
-using (var renderer = new Renderer())
-using (var window = new Window(renderer))
+AsyncContext.Run(async () =>
 {
-    window.SetVSync(true);
-    window.Run();
-}
+    Log.Write("Hello, World!");
 
-Log.Write("Goodbye, World!");
+    //var model = await TriangleModelLoader.Create("Models", "boss.obj");
+
+    using (var renderer = new Renderer())
+    using (var window = new Window(renderer))
+    {
+        window.SetVSync(true);
+        window.Run();
+    }
+
+    Log.Write("Goodbye, World!");
+});

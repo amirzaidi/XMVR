@@ -1,20 +1,21 @@
-﻿using LibUtil;
-using static LibMesh.OBJParser;
+﻿using LibMesh.Data;
+using LibMesh.Discrete;
+using LibUtil;
 
 namespace LibMesh
 {
-    internal class OBJProcessor
+    internal class WavefrontObjProcessor
     {
-        private readonly OBJData mInput, mOutput;
-        private DiscreteTopology? mTopology;
-        private DiscreteGeometry? mGeometry;
+        private readonly WavefrontObject mInput, mOutput;
+        private Topology? mTopology;
+        private Geometry? mGeometry;
         private bool mCanonized;
 
-        internal OBJData Output => mOutput;
+        internal WavefrontObject Output => mOutput;
 
         internal float TotalAngleDefect => mGeometry!.TotalAngleDefect();
 
-        internal OBJProcessor(OBJData input)
+        internal WavefrontObjProcessor(WavefrontObject input)
         {
             mInput = input;
             mOutput = new();
@@ -36,7 +37,7 @@ namespace LibMesh
 
             // Update all references in the vertices of faces using the map of replacements.
             mOutput.F.AddRange(mInput.F.Select(_ =>
-                _.Select(_ => new FV(mapV[_.VId], _.VtId, _.VnId, _.KHId)).ToArray()
+                _.Select(_ => new FaceEntry(mapV[_.VId], _.VtId, _.VnId, _.KHId)).ToArray()
             ));
 
             // Then, triangulate all faces.
@@ -75,7 +76,7 @@ namespace LibMesh
                 var v2 = fv[1].VId;
                 var v3 = fv[2].VId;
 
-                foreach (var e in DiscreteTopology.HalfEdgesInFace(v1, v2, v3))
+                foreach (var e in Topology.HalfEdgesInFace(v1, v2, v3))
                 {
                     if (!halfEdges.TryAdd(e, f))
                     {
@@ -99,8 +100,8 @@ namespace LibMesh
 
         internal async Task CreateHigherLevel()
         {
-            mTopology = new DiscreteTopology(mOutput);
-            mGeometry = new DiscreteGeometry(mOutput, mTopology);
+            mTopology = new Topology(mOutput);
+            mGeometry = new Geometry(mOutput, mTopology);
         }
 
         internal async Task<int> CalculateNormals()
@@ -157,12 +158,13 @@ namespace LibMesh
                 var meanCurvature = mGeometry!.ScalarMeanCurvature(vId);
                 var dualArea = mGeometry!.CircumcentricDualArea(vId);
 
-                if (float.IsNaN(angleDefect + meanCurvature + dualArea))
+                float[] check = [angleDefect, meanCurvature, dualArea];
+                if (check.Any(_ => float.IsNaN(_)))
                 {
                     throw new Exception();
                 }
 
-                return (angleDefect / dualArea, meanCurvature / dualArea);
+                return new V2(angleDefect / dualArea, meanCurvature / dualArea);
             }));
 
             // Set khId = vId.

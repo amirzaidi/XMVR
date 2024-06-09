@@ -1,17 +1,21 @@
-﻿using LibUtil;
+﻿using LibMesh.Data;
+using LibUtil;
 
-namespace LibMesh
+namespace LibMesh.Discrete
 {
-    internal class DiscreteTopology
+    internal class Topology
     {
         // Must be a triangulated and normalized mesh.
-        private readonly OBJParser.OBJData mMesh;
+        private readonly WavefrontObject mMesh;
         private readonly List<int>[] mVertexFaceMap;
 
-        internal IEnumerable<int> VIds => Enumerable.Range(0, mMesh.V.Count);
-        internal IEnumerable<int> FIds => Enumerable.Range(0, mMesh.F.Count);
+        internal IEnumerable<int> VIds =>
+            Enumerable.Range(0, mMesh.V.Count);
 
-        internal DiscreteTopology(OBJParser.OBJData mesh)
+        internal IEnumerable<int> FIds =>
+            Enumerable.Range(0, mMesh.F.Count);
+
+        internal Topology(WavefrontObject mesh)
         {
             mMesh = mesh;
             mVertexFaceMap = mMesh.V.Select(_ => new List<int>()).ToArray();

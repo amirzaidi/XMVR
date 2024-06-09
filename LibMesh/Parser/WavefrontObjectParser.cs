@@ -1,12 +1,14 @@
-﻿using LibUtil;
+﻿using LibMesh.Data;
+using LibUtil;
 
-namespace LibMesh
+namespace LibMesh.Parser
 {
-    public class OBJParser
+    // To-Do: Remove static instances and make it able to load/unload on demand.
+    internal class WavefrontObjectParser
     {
-        private static readonly LineParser<OBJParser> sLineParser = new();
+        private static readonly Parser<WavefrontObjectParser> sLineParser = new();
 
-        static OBJParser()
+        static WavefrontObjectParser()
         {
             sLineParser.AddHandler("mtllib", async (obj, str) => await obj.MTLParser.ParseFile(obj.mDir, str[1]));
             sLineParser.AddHandler("usemtl", (obj, str) =>
@@ -20,7 +22,7 @@ namespace LibMesh
 
             sLineParser.AddHandler("v", (obj, str) => obj.Data.V.Add(new V3(str[1].AsFloat(), str[2].AsFloat(), str[3].AsFloat())));
             sLineParser.AddHandler("vp", (obj, str) => throw new Exception("vp not supported in obj file"));
-            sLineParser.AddHandler("vt", (obj, str) => obj.Data.Vt.Add((str[1].AsFloat(), str[2].AsFloat())));
+            sLineParser.AddHandler("vt", (obj, str) => obj.Data.Vt.Add(new V2(str[1].AsFloat(), str[2].AsFloat())));
             sLineParser.AddHandler("vn", (obj, str) => obj.Data.Vn.Add(new V3(str[1].AsFloat(), str[2].AsFloat(), str[3].AsFloat())));
 
             sLineParser.AddHandler("f", (obj, str) =>
@@ -36,7 +38,7 @@ namespace LibMesh
             });
         }
 
-        private static FV SplitFaceEntry(string entry)
+        private static FaceEntry SplitFaceEntry(string entry)
         {
             var split = entry.Split('/');
             int v = 0, vt = 0, vn = 0;
@@ -54,6 +56,7 @@ namespace LibMesh
                 default:
                     throw new Exception();
             }
+
             // 1-indexed with 0 as "not found". Shift everything to 0-indexed with -1 as "not found".
             // Currently no way to add curvature from the file itself.
             return new()
@@ -65,50 +68,13 @@ namespace LibMesh
             };
         }
 
-        public static async Task<OBJParser> ParseFile(string dir, string filename) =>
-            await new OBJParser(dir, filename).Load();
+        public static async Task<WavefrontObjectParser> ParseFile(string dir, string filename) =>
+            await new WavefrontObjectParser(dir, filename).Load();
 
-        public readonly MTLParser MTLParser = new();
+        public readonly WavefrontMaterialParser MTLParser = new();
         private readonly string mDir, mFilename;
 
-        // Encapsulates all the relevant data to pass on.
-        // This can be transformed into a canonical mesh representation.
-        internal readonly struct OBJData
-        {
-            internal readonly List<V3> V = [];
-            internal readonly List<(float U, float V)> Vt = [];
-            internal readonly List<V3> Vn = [];
-            internal readonly List<(float K, float H)> KH = [];
-            internal readonly List<FV[]> F = [];
-            internal readonly List<(string?, int)> MatUses = [];
-
-            public OBJData()
-            {
-            }
-        }
-
-        internal struct FV
-        {
-            internal int VId, VtId, VnId, KHId;
-
-            internal FV(int vId, int vtId, int vnId, int khId)
-            {
-                VId = vId;
-                VtId = vtId;
-                VnId = vnId;
-                KHId = khId;
-            }
-
-            internal readonly void Deconstruct(out int vId, out int vtId, out int vnId, out int khId)
-            {
-                vId = VId;
-                vtId = VtId;
-                vnId = VnId;
-                khId = KHId;
-            }
-        }
-
-        internal readonly OBJData Data = new();
+        internal readonly WavefrontObject Data = new();
 
         // Counting mtl usage.
         private string? CurrMatName;
@@ -117,13 +83,13 @@ namespace LibMesh
         // To-Do: Remove or use (partial) polygon names?
         private string? mO, mG;
 
-        private OBJParser(string dir, string filename)
+        private WavefrontObjectParser(string dir, string filename)
         {
             mDir = dir;
             mFilename = filename;
         }
 
-        internal async Task<OBJParser> Load()
+        internal async Task<WavefrontObjectParser> Load()
         {
             await sLineParser.ParseFile(this, mDir, mFilename);
             FinalizeMtlUsage();

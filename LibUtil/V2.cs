@@ -2,6 +2,8 @@
 {
     public readonly struct V2
     {
+        public static readonly V2 ZERO = new(0f, 0f);
+
         public readonly float X, Y;
 
         public V2(float x, float y)

@@ -2,7 +2,7 @@
 
 namespace LibUtil
 {
-    public static class Linq
+    public static class Extensions
     {
         public static TOut Apply<TIn, TOut>(this TIn input, Func<TIn, TOut> output) =>
             output(input);
@@ -138,5 +138,18 @@ namespace LibUtil
 
         public static V3 Sum<T>(this IEnumerable<T> array, Func<T, V3> f) =>
             array.Select(_ => f(_)).Aggregate((a, b) => a + b);
+
+        public static void Append(this List<float> list, V2 v)
+        {
+            list.Add(v.X);
+            list.Add(v.Y);
+        }
+
+        public static void Append(this List<float> list, V3 v)
+        {
+            list.Add(v.X);
+            list.Add(v.Y);
+            list.Add(v.Z);
+        }
     }
 }

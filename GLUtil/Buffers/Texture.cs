@@ -14,6 +14,8 @@ namespace LibGL.Buffers
         public readonly Format Format;
         public readonly TextureTarget Target;
 
+        public (RenderOutput, int) BoundFB;
+
         // Needed for VR.
         //public IntPtr NativePtr =>
         //    new(Id);

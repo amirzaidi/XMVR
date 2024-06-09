@@ -1,9 +1,12 @@
 ﻿using LibGL;
+using LibGL.Buffers;
 using LibGL.Shaders;
 using LibMesh.Data;
+using Microsoft.VisualBasic;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using static LibGL.Buffers.TextureFormats;
 using Window = LibGL.Window;
 
 namespace BasicApp
@@ -35,10 +38,12 @@ namespace BasicApp
         // To-Do: Move these somewhere non-nullable.
         private Window? mWindow;
         private ShaderProgram? mProgram;
+        private RenderOutput? mOutput;
 
         public bool Init(Window window)
         {
             mWindow = window;
+            RecreateRenderOutput();
 
             // Create a rasterization pipeline using a vertex and fragment shader.
             using (var vert = new Shader(ShaderType.VertexShader, "./Shaders/vert.glsl"))
@@ -66,6 +71,18 @@ namespace BasicApp
             return true;
         }
 
+        private void RecreateRenderOutput()
+        {
+            mOutput?.Dispose();
+
+            var w = mWindow!.Size.X;
+            var h = mWindow!.Size.Y;
+            mOutput = new RenderOutput(
+                new RenderBuffer(w, h),
+                new Texture(w, h, ch: 4)
+            );
+        }
+
         public void AddModel(StandardizedModel model)
         {
             if (mProgram == null)
@@ -88,6 +105,7 @@ namespace BasicApp
         {
             // Instead of resizing nicely, we force an aspect ratio.
             mWindow!.ForceResizeToAspect(BASE_EYE_WIDTH, BASE_EYE_HEIGHT);
+            RecreateRenderOutput();
             return true;
         }
 
@@ -101,18 +119,19 @@ namespace BasicApp
             int w = mWindow!.Size.X;
             int h = mWindow!.Size.Y;
 
-            // Create empty render space.
-            GL.Viewport(0, 0, w, h);
-            GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
             // Set up standard rendering parameters.
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
 
             using (mProgram!.Bind())
+            using (mOutput!.FB.Bind())
             {
+                // Create empty render space.
+                GL.Viewport(0, 0, w, h);
+                GL.ClearColor(0.05f, 0.10f, 0.15f, 1f);
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
                 // Set static view and projection matrices.
                 var view = View;
                 var projection = ProjectionEye.First();
@@ -155,6 +174,19 @@ namespace BasicApp
             // Clean up rendering parameters.
             GL.Disable(EnableCap.DepthTest);
             GL.Disable(EnableCap.CullFace);
+
+            // Copy rendered output to window framebuffer.
+            GL.Enable(EnableCap.FramebufferSrgb);
+            using (mOutput!.FB.Bind(FramebufferTarget.ReadFramebuffer))
+            {
+                GL.BlitFramebuffer(
+                    0, 0, w, h,
+                    0, 0, w, h,
+                    ClearBufferMask.ColorBufferBit,
+                    BlitFramebufferFilter.Nearest
+                );
+            }
+            GL.Disable(EnableCap.FramebufferSrgb);
 
             // Show the output to the screen.
             mWindow!.SwapBuffers();

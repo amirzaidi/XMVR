@@ -11,12 +11,13 @@ namespace LibGL
             ["will use VIDEO memory"],
             ["allocated multisample storage"],
             ["correctly render to an integer framebuffer"],
+            ["driver allocated storage"],
             //["GL_SHADER_STORAGE_BUFFER", "from VIDEO memory to HOST memory"],
         ];
 
         public static void Enable()
         {
-            Log.Write("Enabling Debug");
+            //Log.Write("Enabling Debug");
 
             GL.Enable(EnableCap.DebugOutput);
             GL.Enable(EnableCap.DebugOutputSynchronous);
@@ -24,7 +25,6 @@ namespace LibGL
             GL.DebugMessageCallback((source, type, id, severity, length, message, userParam) =>
             {
                 var messageText = Marshal.PtrToStringAnsi(message, length);
-
                 if (DEBUG_EXCEPTIONS.Any(_ => _.All(messageText.Contains)))
                 {
                     return;

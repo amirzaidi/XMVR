@@ -5,6 +5,14 @@ namespace LibGL.Buffers
 {
     public class FrameBuffer : Bindable<FramebufferTarget>
     {
+        public readonly struct Bounds(int x0, int y0, int x1, int y1)
+        {
+            public readonly int X0 = x0,
+                Y0 = y0,
+                X1 = x1,
+                Y1 = y1;
+        }
+
         internal readonly int Id;
 
         protected override FramebufferTarget BindDefault => FramebufferTarget.Framebuffer;
@@ -48,5 +56,30 @@ namespace LibGL.Buffers
 
         public void Dispose() =>
             GL.DeleteFramebuffer(Id);
+
+
+        public static void BlitIndex(FrameBuffer fb, int readBufferIndex, Bounds bounds) =>
+            BlitIndex(fb, readBufferIndex, bounds, bounds);
+
+        private static void BlitIndex(FrameBuffer fb, int readBufferIndex, Bounds inBounds, Bounds outBounds)
+        {
+            using (fb.Bind(FramebufferTarget.ReadFramebuffer))
+            {
+                SetReadBuffer(readBufferIndex);
+                GL.BlitFramebuffer(
+                    inBounds.X0, inBounds.Y0, inBounds.X1, inBounds.Y1,
+                    outBounds.X0, outBounds.Y0, outBounds.X1, outBounds.Y1,
+                    ClearBufferMask.ColorBufferBit,
+                    BlitFramebufferFilter.Nearest
+                );
+                SetReadBuffer(0); // Reset to 0.
+            }
+        }
+
+        private static void SetReadBuffer(int bufId) =>
+            GL.ReadBuffer(ReadBufferMode.ColorAttachment0 + bufId);
+
+        private static void SetDrawBuffers(params int[] bufIds) =>
+            GL.DrawBuffers(bufIds.Length, bufIds.Select(i => DrawBuffersEnum.ColorAttachment0 + i).ToArray());
     }
 }

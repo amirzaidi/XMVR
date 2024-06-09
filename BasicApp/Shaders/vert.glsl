@@ -24,8 +24,8 @@ void main()
     // Position.
     vec4 v = vec4(VertexPosition, 1.f);
     v = Model * v;
-    v = View * v;
     FragmentPosition = v.xyz;
+    v = View * v;
     v = Projection * v;
     gl_Position = v;
 

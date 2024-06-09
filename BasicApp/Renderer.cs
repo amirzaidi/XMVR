@@ -17,7 +17,7 @@ namespace BasicApp
         private const float SIMULATE_EYE_DIST = 0.025f;
 
         // Perspective constants.
-        private const float VERTICAL_FOV = 80f;
+        private const float VERTICAL_FOV = 90f;
         private const float FRUSTUM_NEAR = 0.01f;
         private const float FRUSTUM_FAR = 100f;
 
@@ -125,9 +125,11 @@ namespace BasicApp
             using (mProgram!.Bind())
             using (mOutput!.FB.Bind())
             {
+                var backgroundColor = new Vector3(0.05f, 0.10f, 0.15f);
+
                 // Create empty render space.
                 GL.Viewport(0, 0, w, h);
-                GL.ClearColor(0.05f, 0.10f, 0.15f, 1f);
+                GL.ClearColor(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, 1f);
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
                 // Set static view and projection matrices.
@@ -140,12 +142,13 @@ namespace BasicApp
                 GL.Uniform3(mProgram.GetUniformLocation("CameraPosition"), mCamera.ViewPos);
                 GL.Uniform3(mProgram.GetUniformLocation("LightDirection"), -Vector3.One.Normalized());
                 GL.Uniform3(mProgram.GetUniformLocation("LightColor"), 0.5f * Vector3.One);
+                GL.Uniform3(mProgram.GetUniformLocation("BackgroundColor"), backgroundColor);
 
                 // For every model.
                 foreach (var model in mModels)
                 {
                     // Set model matrix. Currently hardcoded at translation and scale.
-                    var modelMatrix = Matrix4.CreateTranslation(new(0f, 0f, -2f))
+                    var modelMatrix = Matrix4.CreateTranslation(new(0f, 0f, -2.5f))
                         * Matrix4.CreateScale(0.1f);
 
                     // Needed for normal vectors.
@@ -175,15 +178,7 @@ namespace BasicApp
 
             // Copy rendered output to window framebuffer.
             GL.Enable(EnableCap.FramebufferSrgb);
-            using (mOutput!.FB.Bind(FramebufferTarget.ReadFramebuffer))
-            {
-                GL.BlitFramebuffer(
-                    0, 0, w, h,
-                    0, 0, w, h,
-                    ClearBufferMask.ColorBufferBit,
-                    BlitFramebufferFilter.Nearest
-                );
-            }
+            FrameBuffer.BlitIndex(mOutput!.FB, 0, new FrameBuffer.Bounds(0, 0, w, h));
             GL.Disable(EnableCap.FramebufferSrgb);
 
             // Show the output to the screen.

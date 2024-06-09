@@ -15,21 +15,21 @@ namespace BasicApp
         {
             // The VBO stores the triangle vertices.
             VBO = new VertexBufferObject();
-            VBO.BindBufferData(model.Vertices);
+            VBO.BindLoadBufferData(model.Vertices);
 
             // The EBO stores the triangle indices.
             EBO = new ElementBufferObject();
-            EBO.BindBufferData(model.Indices);
+            EBO.BindLoadBufferData(model.Indices);
 
             // The VAO stores how to render those vertices/indices.
             VAO = new VertexArrayObject();
 
             // OpenGL needs the raw data to validate the indexing used in the next step.
-            VAO.SetVertexBufferObject(VBO);
+            VAO.BindSetVertexBufferObject(VBO);
 
             // Set up the memory layout.
             // This will be saved for the next time the VAO is bound.
-            VAO.SetAttributes(VertexAttribute.DEFAULT, program!.GetAttribLocation);
+            VAO.BindSetAttributes(VertexAttribute.DEFAULT, program!.GetAttribLocation);
         }
 
         protected override Action BindInternal() =>

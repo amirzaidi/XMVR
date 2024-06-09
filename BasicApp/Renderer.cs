@@ -1,9 +1,6 @@
 ﻿using LibGL;
-using LibGL.Buffers;
 using LibGL.Shaders;
-using LibMesh;
 using LibMesh.Data;
-using LibUtil;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -122,11 +119,17 @@ namespace BasicApp
                 GL.UniformMatrix4(mProgram.GetUniformLocation("View"), false, ref view);
                 GL.UniformMatrix4(mProgram.GetUniformLocation("Projection"), false, ref projection);
 
+                // Set static uniform parameters.
+                GL.Uniform3(mProgram.GetUniformLocation("CameraPosition"), mCamera.ViewPos);
+                GL.Uniform3(mProgram.GetUniformLocation("LightDirection"), -Vector3.One.Normalized());
+                GL.Uniform3(mProgram.GetUniformLocation("LightColor"), 0.5f * Vector3.One);
+
                 // For every model.
                 foreach (var model in mModels)
                 {
                     // Set model matrix. Currently hardcoded at translation and scale.
-                    var modelMatrix = Matrix4.CreateTranslation(new(0f, 0f, -2f)) * Matrix4.CreateScale(0.1f);
+                    var modelMatrix = Matrix4.CreateTranslation(new(0f, 0f, -2f))
+                        * Matrix4.CreateScale(0.1f);
 
                     // Needed for normal vectors.
                     // Source: https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html

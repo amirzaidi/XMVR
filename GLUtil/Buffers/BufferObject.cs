@@ -14,7 +14,7 @@ namespace LibGL.Buffers
             return () => GL.BindBuffer(target, 0);
         }
 
-        public void BindBufferData<T>(T[] data, BufferUsageHint hint = BufferUsageHint.StaticDraw)
+        public void BindLoadBufferData<T>(T[] data, BufferUsageHint hint = BufferUsageHint.StaticDraw)
             where T : struct
         {
             using (Bind())

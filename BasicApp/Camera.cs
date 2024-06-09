@@ -43,13 +43,13 @@ namespace BasicApp
             if (ks.IsKeyDown(Keys.Up))
             {
                 ViewRot.X += (float)(RSX * 360d * dt);
-                if (ViewRot.X < -90f) ViewRot.X -= -90f;
+                if (ViewRot.X > 90f) ViewRot.X = 90f;
             }
 
             if (ks.IsKeyDown(Keys.Down))
             {
                 ViewRot.X -= (float)(RSX * 360d * dt);
-                if (ViewRot.X > 90f) ViewRot.X = 90f;
+                if (ViewRot.X < -90f) ViewRot.X = -90f;
             }
         }
     }

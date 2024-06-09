@@ -14,7 +14,7 @@ namespace LibGL.Buffers
 
         public readonly int Id = GL.GenVertexArray();
 
-        public void SetVertexBufferObject(VertexBufferObject vbo)
+        public void BindSetVertexBufferObject(VertexBufferObject vbo)
         {
             using (Bind())
             {
@@ -23,7 +23,7 @@ namespace LibGL.Buffers
             }
         }
 
-        public void SetAttributes(VertexAttribute[] attrs, Func<string, int> map)
+        public void BindSetAttributes(VertexAttribute[] attrs, Func<string, int> map)
         {
             using (Bind())
             {

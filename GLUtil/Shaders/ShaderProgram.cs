@@ -1,5 +1,4 @@
 ﻿using LibUtil;
-using OpenTK.Compute.OpenCL;
 using OpenTK.Graphics.OpenGL4;
 
 namespace LibGL.Shaders

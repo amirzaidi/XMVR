@@ -8,36 +8,32 @@ uniform mat4 Projection;
 
 // In data attributes.
 // These are defined in the vertex layout.
-layout(location = 0) in vec3 VertexPosition;
-/*
-in vec3 VertexNormal;
+in vec3 VertexPosition;
 in vec2 VertexTexCoords;
+in vec3 VertexNormal;
 
 // Out data attributes.
 // These must match between vertex and fragment shader.
 out vec3 FragmentPosition;
-out vec3 FragmentNormal;
 out vec2 FragmentTexCoords;
-*/
+out vec3 FragmentNormal;
 
 // Entry point for vertex shader.
 void main()
 {
-    vec4 v = vec4(VertexPosition, 1.0);
+    // Position.
+    vec4 v = vec4(VertexPosition, 1.f);
     v = Model * v;
     v = View * v;
+    FragmentPosition = v.xyz;
     v = Projection * v;
     gl_Position = v;
 
-    /*
-    // Translate the position from world-space to screen-space.
-    vec4 vertexPosition = Model * vec4(VertexPosition, 1.f);
-    gl_Position = ViewProj * vertexPosition;
-
-    // Pass data to fragment shader.
-    // Rotate and scale normal vector.
-    FragmentPosition = VertexPosition;
-    FragmentNormal = (ModelNormal * vec4(VertexNormal, 1.f)).xyz;
+    // Texture coordinates.
     FragmentTexCoords = VertexTexCoords;
-    */
+
+    // Normal.
+    vec4 n = vec4(VertexNormal, 1.f);
+    n = ModelNormal * n;
+    FragmentNormal = normalize(n.xyz);
 }

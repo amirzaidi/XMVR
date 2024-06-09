@@ -11,7 +11,7 @@ using Window = LibGL.Window;
 
 namespace BasicApp
 {
-    internal class Renderer(Action<Renderer> onInit) : IRendererCallbacks, IDisposable
+    internal class Renderer : IRendererCallbacks, IDisposable
     {
         // VR usually has a hardcoded resolution at program start.
         private const int BASE_EYE_WIDTH = 1024;
@@ -23,7 +23,6 @@ namespace BasicApp
         private const float FRUSTUM_NEAR = 0.01f;
         private const float FRUSTUM_FAR = 100f;
 
-        private readonly Action<Renderer> mOnInit = onInit;
         private readonly Camera mCamera = new();
         private Matrix4 View =>
             Matrix4.CreateTranslation(-mCamera.ViewPos) * MatUtil.CameraRotation(-mCamera.ViewRot);
@@ -33,7 +32,8 @@ namespace BasicApp
         private readonly Matrix4[] ProjectionEye = new Matrix4[2];
 
         // Add all objects to be rendered here.
-        private readonly List<(VertexBufferObject vbo, ElementBufferObject ebo, VertexArrayObject vao)> mModels = [];
+        private readonly List<StandardizedModel> mInputModels = [];
+        private readonly List<Model> mModels = [];
 
         // To-Do: Move these somewhere non-nullable.
         private Window? mWindow;
@@ -50,6 +50,7 @@ namespace BasicApp
                 mProgram = new ShaderProgram(vert, frag);
             }
 
+            // Create different matrices for two different eyes in VR.
             for (var eye = 0; eye < 2; eye += 1)
             {
                 ViewEye[eye] = Matrix4.CreateTranslation(new Vector3(SIMULATE_EYE_DIST * (eye - 0.5f), 0, 0));
@@ -61,34 +62,23 @@ namespace BasicApp
                 );
             }
 
-            mOnInit(this);
+            // Process all queued models.
+            mInputModels.ForEach(AddModel);
+            mInputModels.Clear();
+
             return true;
         }
 
-        public void AddModel(RenderReadyModel model)
+        public void AddModel(StandardizedModel model)
         {
-            // The VBO stores the triangle vertices.
-            var vbo = new VertexBufferObject();
-            vbo.BindBufferData(model.Vertices);
-
-            // The EBO stores the triangle indices.
-            var ebo = new ElementBufferObject();
-            ebo.BindBufferData(model.Indices);
-
-            // The VAO stores how to render those vertices/indices.
-            var vao = new VertexArrayObject();
-            using (vao.Bind())
+            if (mProgram == null)
             {
-                // OpenGL needs the raw data to validate the indexing used in the next step.
-                GL.BindBuffer(BufferTarget.ArrayBuffer, vbo.Id);
-
-                // Set up the memory layout.
-                // This will be saved for the next time the VAO is bound.
-                vao.SetAttributes(VertexAttribute.DEFAULT, mProgram!.GetAttribLocation);
+                mInputModels.Add(model);
             }
-
-            // Add it to the list of models to be rendered.
-            mModels.Add((vbo, ebo, vao));
+            else
+            {
+                mModels.Add(new Model(mProgram!, model));
+            }
         }
 
         public bool Update(double dt, KeyboardState ks)
@@ -133,24 +123,24 @@ namespace BasicApp
                 GL.UniformMatrix4(mProgram.GetUniformLocation("Projection"), false, ref projection);
 
                 // For every model.
-                foreach (var (vbo, ebo, vao) in mModels)
+                foreach (var model in mModels)
                 {
                     // Set model matrix. Currently hardcoded at translation and scale.
-                    var model = Matrix4.CreateTranslation(new(0f, 0f, -2f)) * Matrix4.CreateScale(0.1f);
+                    var modelMatrix = Matrix4.CreateTranslation(new(0f, 0f, -2f)) * Matrix4.CreateScale(0.1f);
 
                     // Needed for normal vectors.
                     // Source: https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
-                    var modelNormal = model;
-                    modelNormal.Row3.Xyz = Vector3.Zero;
-                    modelNormal = modelNormal.Inverted();
-                    modelNormal.Transpose();
+                    var modelNormalMatrix = modelMatrix;
+                    modelNormalMatrix.Row3.Xyz = Vector3.Zero;
+                    modelNormalMatrix = modelNormalMatrix.Inverted();
+                    modelNormalMatrix.Transpose();
 
-                    GL.UniformMatrix4(mProgram.GetUniformLocation("Model"), false, ref model);
-                    GL.UniformMatrix4(mProgram.GetUniformLocation("ModelNormal"), false, ref modelNormal);
+                    GL.UniformMatrix4(mProgram.GetUniformLocation("Model"), false, ref modelMatrix);
+                    GL.UniformMatrix4(mProgram.GetUniformLocation("ModelNormal"), false, ref modelNormalMatrix);
 
                     // Bind mesh.
-                    using (vao.Bind())
-                    using (ebo.Bind())
+                    using (model.VAO.Bind())
+                    using (model.EBO.Bind())
                     {
                         // Draw indices for cube.
                         mProgram.Validate();
@@ -171,11 +161,7 @@ namespace BasicApp
         public void Dispose()
         {
             mProgram?.Dispose();
-            mModels.ForEach(_ =>
-            {
-                _.vbo.Dispose();
-                _.vao.Dispose();
-            });
+            mModels.ForEach(_ => _.Dispose());
         }
     }
 }

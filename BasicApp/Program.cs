@@ -9,13 +9,13 @@ AsyncContext.Run(async () =>
 {
     Log.Write("Hello, World!");
 
-    var models = new List<RenderReadyModel>();
-    using (var renderer = new Renderer(r => models.ForEach(_ => r.AddModel(_))))
+    var models = new List<StandardizedModel>();
+    using (var renderer = new Renderer())
     using (var window = new Window(renderer))
     {
         // Load models in async.
         // Can add more later.
-        models.Add(await TriangleModelLoader.Create("Models", "cube.obj"));
+        renderer.AddModel(await TriangleModelLoader.Create("Models", "cube.obj"));
 
         // Start rendering.
         window.SetVSync(true);

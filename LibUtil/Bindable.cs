@@ -6,6 +6,9 @@
             new(BindInternal());
 
         protected abstract Action BindInternal();
+
+        public static Action Chain(params Unbinder[] unbinders) =>
+            () => unbinders.Reverse().ForEach(_ => _.Dispose());
     }
 
     public abstract class Bindable<T>

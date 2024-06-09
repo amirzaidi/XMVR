@@ -6,7 +6,7 @@ namespace LibMesh
 {
     public class TriangleModelLoader
     {
-        public static async Task<RenderReadyModel> Create(string dir, string filename)
+        public static async Task<StandardizedModel> Create(string dir, string filename)
         {
             var obj = await WavefrontObjectParser.ParseFile(dir, filename);
             var p = new WavefrontObjProcessor(obj.Data);
@@ -28,7 +28,7 @@ namespace LibMesh
 
             var objData = p.Output;
             var (vertices, indices) = await ObjToRenderMemory(objData);
-            var t = new RenderReadyModel(obj.MTLParser.Mats, [.. objData.MatUses], vertices, indices);
+            var t = new StandardizedModel(obj.MTLParser.Mats, [.. objData.MatUses], vertices, indices);
             return t;
         }
 

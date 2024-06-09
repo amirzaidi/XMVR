@@ -14,6 +14,15 @@ namespace LibGL.Buffers
 
         public readonly int Id = GL.GenVertexArray();
 
+        public void SetVertexBufferObject(VertexBufferObject vbo)
+        {
+            using (Bind())
+            {
+                // OpenGL needs the raw data to validate the indexing used in the next step.
+                GL.BindBuffer(BufferTarget.ArrayBuffer, vbo.Id);
+            }
+        }
+
         public void SetAttributes(VertexAttribute[] attrs, Func<string, int> map)
         {
             using (Bind())

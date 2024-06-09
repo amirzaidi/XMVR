@@ -1,4 +1,4 @@
-﻿namespace LibUtil
+﻿namespace LibMesh.Data
 {
     public readonly struct V3
     {
@@ -6,9 +6,14 @@
 
         public readonly float X, Y, Z;
 
-        public V2 XY => new(X, Y);
-        public V2 XZ => new(X, Z);
-        public V2 YZ => new(Y, Z);
+        public V2 XY =>
+            new(X, Y);
+
+        public V2 XZ =>
+            new(X, Z);
+
+        public V2 YZ =>
+            new(Y, Z);
 
         public V3(float x, float y, float z)
         {
@@ -128,9 +133,7 @@
             return a.X > b.X ? 1 : -1;
         }
 
-        public override string ToString()
-        {
-            return $"V3({X};{Y};{Z})";
-        }
+        public override string ToString() =>
+            $"V3({X};{Y};{Z})";
     }
 }

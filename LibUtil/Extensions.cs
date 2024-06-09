@@ -15,18 +15,6 @@ namespace LibUtil
             }
         }
 
-        public static int AsInt(this string input) =>
-            int.Parse(input);
-
-        public static int AsInt(this string input, int fallbackWhenEmpty) =>
-            string.IsNullOrEmpty(input) ? fallbackWhenEmpty : int.Parse(input);
-
-        public static float AsFloat(this string input) =>
-            float.Parse(input, CultureInfo.InvariantCulture.NumberFormat);
-
-        public static (T, T, T) AsThreeTuple<T>(this T[] input) =>
-            (input[0], input[1], input[2]);
-
         public static string[] SplitNotEmpty(this string input, params char[] separator) =>
             input.Split(separator, StringSplitOptions.RemoveEmptyEntries);
 
@@ -122,34 +110,5 @@ namespace LibUtil
 
         public static T[] ExecuteAll<T>(this IEnumerable<Func<T>> array) =>
             array.Select(_ => _()).ToArray();
-
-        public static IEnumerable<int> IndicesWhereTrue(this bool[] array) =>
-            IndicesWhere(array, _ => _);
-
-        public static IEnumerable<int> IndicesWhere<T>(this T[] array, Func<T, bool> selector) =>
-            Enumerable.Range(0, array.Length)
-                .Where(_ => selector(array[_]))
-                .ToArray();
-
-        public static IEnumerable<int> IndicesWhere<T>(this List<T> list, Func<T, bool> selector) =>
-            Enumerable.Range(0, list.Count)
-                .Where(_ => selector(list[_]))
-                .ToArray();
-
-        public static V3 Sum<T>(this IEnumerable<T> array, Func<T, V3> f) =>
-            array.Select(_ => f(_)).Aggregate((a, b) => a + b);
-
-        public static void Append(this List<float> list, V2 v)
-        {
-            list.Add(v.X);
-            list.Add(v.Y);
-        }
-
-        public static void Append(this List<float> list, V3 v)
-        {
-            list.Add(v.X);
-            list.Add(v.Y);
-            list.Add(v.Z);
-        }
     }
 }

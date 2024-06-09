@@ -1,4 +1,4 @@
-﻿namespace LibUtil
+﻿namespace LibMesh.Data
 {
     public readonly struct V2
     {
@@ -80,9 +80,7 @@
         public static float Det(V2 aRow, V2 bRow) =>
             aRow.X * bRow.Y - aRow.Y * bRow.X;
 
-        public override string ToString()
-        {
-            return $"V2({X};{Y})";
-        }
+        public override string ToString() =>
+            $"V2({X};{Y})";
     }
 }

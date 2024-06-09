@@ -135,8 +135,8 @@ namespace BasicApp
                 // For every model.
                 foreach (var (vbo, ebo, vao) in mModels)
                 {
-                    // Set model matrix. Currently hardcoded at translation.
-                    var model = Matrix4.CreateTranslation(new(0f, 0f, -4f));
+                    // Set model matrix. Currently hardcoded at translation and scale.
+                    var model = Matrix4.CreateTranslation(new(0f, 0f, -2f)) * Matrix4.CreateScale(0.1f);
 
                     // Needed for normal vectors.
                     // Source: https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
@@ -152,10 +152,7 @@ namespace BasicApp
                     using (vao.Bind())
                     using (ebo.Bind())
                     {
-                        // Draw triangle.
-                        //GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
-
-                        // Draw indices.
+                        // Draw indices for cube.
                         mProgram.Validate();
                         GL.DrawElements(PrimitiveType.Triangles, 36, DrawElementsType.UnsignedInt, 0 * sizeof(uint));
                     }

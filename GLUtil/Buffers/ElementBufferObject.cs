@@ -2,9 +2,9 @@
 
 namespace LibGL.Buffers
 {
-    public class VertexBufferObject : BufferObject
+    public class ElementBufferObject : BufferObject
     {
         protected override BufferTarget BindDefault =>
-            BufferTarget.ArrayBuffer;
+            BufferTarget.ElementArrayBuffer;
     }
 }

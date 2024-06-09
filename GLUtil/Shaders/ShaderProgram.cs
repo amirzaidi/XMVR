@@ -9,7 +9,8 @@ namespace LibGL.Shaders
         public readonly int Id;
         public readonly string Name;
 
-        private readonly Dictionary<string, int> mLocations = [];
+        private readonly Dictionary<string, int> mUniformCache = [];
+        private readonly Dictionary<string, int> mAttribCache = [];
 
         public ShaderProgram(params Shader[] shaders)
         {
@@ -25,7 +26,7 @@ namespace LibGL.Shaders
             GL.GetProgram(Id, GetProgramParameterName.LinkStatus, out int success);
             if (success == 0)
             {
-                var m = $"Program:\r\n{GL.GetProgramInfoLog(Id)}";
+                var m = $"{Name}:\r\n{GL.GetProgramInfoLog(Id)}";
                 Log.Write(m);
                 throw new Exception(m);
             }
@@ -34,15 +35,34 @@ namespace LibGL.Shaders
             shaders.ForEach(_ => GL.DetachShader(Id, _.Id));
         }
 
-        public int GetUniformLocation(string var) =>
-            mLocations.GetOrAdd(var, () =>
+        public void Validate()
+        {
+            GL.ValidateProgram(Id);
+            GL.GetProgram(Id, GetProgramParameterName.ValidateStatus, out int success);
+            if (success == 0)
             {
-                var loc = GL.GetUniformLocation(Id, var);
-                if (loc == -1)
+                var m = $"{Name} Invalid State:\r\n{GL.GetProgramInfoLog(Id)}";
+                Log.Write(m);
+                throw new Exception(m);
+            }
+        }
+
+        public int GetAttribLocation(string var) =>
+            GetCachedLocation(var, mAttribCache, GL.GetAttribLocation);
+
+        public int GetUniformLocation(string var) =>
+            GetCachedLocation(var, mUniformCache, GL.GetUniformLocation);
+
+        private int GetCachedLocation(string var, Dictionary<string, int> map, Func<int, string, int> f) =>
+            map.GetOrAdd(var, () =>
+            {
+                var location = f(Id, var);
+                if (location == -1)
                 {
-                    Log.Write($"{Name} GetUniformLoc: {var} {loc}");
+                    Log.Write($"{Name}: Failed to find {var}");
                 }
-                return loc;
+
+                return location;
             });
 
         protected override Action BindInternal()

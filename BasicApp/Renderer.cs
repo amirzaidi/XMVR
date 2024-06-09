@@ -1,6 +1,9 @@
 ﻿using LibGL;
 using LibGL.Buffers;
 using LibGL.Shaders;
+using LibMesh;
+using LibMesh.Data;
+using LibUtil;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -8,7 +11,7 @@ using Window = LibGL.Window;
 
 namespace BasicApp
 {
-    internal class Renderer : IRendererCallbacks, IDisposable
+    internal class Renderer(Action<Renderer> onInit) : IRendererCallbacks, IDisposable
     {
         // VR usually has a hardcoded resolution at program start.
         private const int BASE_EYE_WIDTH = 1024;
@@ -20,6 +23,7 @@ namespace BasicApp
         private const float FRUSTUM_NEAR = 0.01f;
         private const float FRUSTUM_FAR = 100f;
 
+        private readonly Action<Renderer> mOnInit = onInit;
         private readonly Camera mCamera = new();
         private Matrix4 View =>
             Matrix4.CreateTranslation(-mCamera.ViewPos) * MatUtil.CameraRotation(-mCamera.ViewRot);
@@ -29,7 +33,7 @@ namespace BasicApp
         private readonly Matrix4[] ProjectionEye = new Matrix4[2];
 
         // Add all objects to be rendered here.
-        private readonly List<(VertexBufferObject vbo, VertexArrayObject vao)> mModels = [];
+        private readonly List<(VertexBufferObject vbo, ElementBufferObject ebo, VertexArrayObject vao)> mModels = [];
 
         // To-Do: Move these somewhere non-nullable.
         private Window? mWindow;
@@ -57,24 +61,34 @@ namespace BasicApp
                 );
             }
 
+            mOnInit(this);
+            return true;
+        }
+
+        public void AddModel(RenderReadyModel model)
+        {
             // The VBO stores the triangle vertices.
             var vbo = new VertexBufferObject();
-            vbo.BindBufferData(Mesh.VERTICES);
+            vbo.BindBufferData(model.Vertices);
 
-            // The VAO stores how to render those vertices.
+            // The EBO stores the triangle indices.
+            var ebo = new ElementBufferObject();
+            ebo.BindBufferData(model.Indices);
+
+            // The VAO stores how to render those vertices/indices.
             var vao = new VertexArrayObject();
             using (vao.Bind())
             {
-                // This will be saved for the next time the VAO is bound.
+                // OpenGL needs the raw data to validate the indexing used in the next step.
                 GL.BindBuffer(BufferTarget.ArrayBuffer, vbo.Id);
-                GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-                GL.EnableVertexAttribArray(0);
+
+                // Set up the memory layout.
+                // This will be saved for the next time the VAO is bound.
+                vao.SetAttributes(VertexAttribute.DEFAULT, mProgram!.GetAttribLocation);
             }
 
             // Add it to the list of models to be rendered.
-            mModels.Add((vbo, vao));
-
-            return true;
+            mModels.Add((vbo, ebo, vao));
         }
 
         public bool Update(double dt, KeyboardState ks)
@@ -119,10 +133,10 @@ namespace BasicApp
                 GL.UniformMatrix4(mProgram.GetUniformLocation("Projection"), false, ref projection);
 
                 // For every model.
-                foreach (var (_, vao) in mModels)
+                foreach (var (vbo, ebo, vao) in mModels)
                 {
-                    // Set model matrix. Currently hardcoded at (0, 0, -2) translation.
-                    var model = Matrix4.CreateTranslation(new(0f, 0f, -2f));
+                    // Set model matrix. Currently hardcoded at translation.
+                    var model = Matrix4.CreateTranslation(new(0f, 0f, -4f));
 
                     // Needed for normal vectors.
                     // Source: https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
@@ -136,9 +150,14 @@ namespace BasicApp
 
                     // Bind mesh.
                     using (vao.Bind())
+                    using (ebo.Bind())
                     {
                         // Draw triangle.
-                        GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+                        //GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+
+                        // Draw indices.
+                        mProgram.Validate();
+                        GL.DrawElements(PrimitiveType.Triangles, 36, DrawElementsType.UnsignedInt, 0 * sizeof(uint));
                     }
                 }
             }

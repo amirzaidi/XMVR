@@ -20,12 +20,13 @@ namespace LibUtil
 
         private static readonly List<string> sClasses = [];
 
-        public static void Write(string line)
+        public static void Write(params string[] lines)
         {
+            var line = string.Join("\r\n", lines);
 #if DEBUG
+            var c = GetCallerMethod();
             lock (sClasses)
             {
-                var c = GetCallerMethod();
                 var i = sClasses.FindIndex(c2 => c2 == c);
                 if (i == -1)
                 {

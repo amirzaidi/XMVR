@@ -1,4 +1,4 @@
-﻿namespace LibMesh.Data
+﻿namespace LibUtil
 {
     // To-Do: Make this nicely bound in code, instead of hardcoded.
     public struct VertexAttribute

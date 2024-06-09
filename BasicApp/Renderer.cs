@@ -2,11 +2,9 @@
 using LibGL.Buffers;
 using LibGL.Shaders;
 using LibMesh.Data;
-using Microsoft.VisualBasic;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using static LibGL.Buffers.TextureFormats;
 using Window = LibGL.Window;
 
 namespace BasicApp

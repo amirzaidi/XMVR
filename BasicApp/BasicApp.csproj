@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GLUtil\LibGL.csproj" />
+    <ProjectReference Include="..\LibGL\LibGL.csproj" />
     <ProjectReference Include="..\LibMesh\LibMesh.csproj" />
     <ProjectReference Include="..\LibUtil\LibUtil.csproj" />
   </ItemGroup>

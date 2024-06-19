@@ -23,6 +23,10 @@ void main()
     float ambient = 0.15f;
     float diffuse = 0.50f * max(0.f, dot(FragmentNormal, -LightDirection));
     float specular = 1.50f * pow(max(0.f, dot(FragmentNormal, normalize(normalize(CameraPosition - FragmentPosition) - LightDirection))), 10.f);
+    if (diffuse == 0.f)
+    {
+        specular = 0.f;
+    }
 
     OutColor = vec4(BackgroundColor * ambient + LightColor * (diffuse + specular), 1.0f);
 }

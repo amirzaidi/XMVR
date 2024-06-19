@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace LibUtil
+﻿namespace LibUtil
 {
     public static class Extensions
     {
@@ -47,7 +45,7 @@ namespace LibUtil
                 results[i] = await awaiters[i];
             }
 
-            return [.. results];
+            return results;
         }
 
         /// <summary>
@@ -56,10 +54,13 @@ namespace LibUtil
         public static async Task<List<TOut>> SelectSeqAsync<TIn, TOut>(this IEnumerable<TIn> input, Func<TIn, Task<TOut>> f)
         {
             var results = new List<TOut>();
+            
+            // Await all tasks.
             foreach (var inputVal in input)
             {
                 results.Add(await f(inputVal));
             }
+
             return results;
         }
 
@@ -99,7 +100,7 @@ namespace LibUtil
         public static void IfNull(this object? obj, Action action) =>
             (obj == null).IfTrue(action);
 
-        public static void ThrowIfNull(this object? obj)
+        public static void ThrowIfNull<T>(this T? obj)
             => obj.IfNull(() => throw new NullReferenceException());
 
         public static T[] Fill<T>(this T[] array, Action<int, T[]> fill)
